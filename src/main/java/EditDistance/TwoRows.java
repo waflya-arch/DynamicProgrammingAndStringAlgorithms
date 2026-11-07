@@ -1,32 +1,30 @@
 package EditDistance;
 
 public class TwoRows {
-    // Function to find the minimum number
-    // of operations to convert s1 to s2
+    public static long cellUpdates = 0;
+
     public static int editDistance(String s1, String s2) {
         int m = s1.length();
         int n = s2.length();
+        cellUpdates = 0;
 
-        // Stores dp[i-1][j-1]
-        int prev;
         int[] curr = new int[n + 1];
-
-        for (int j = 0; j <= n; j++)
-            curr[j] = j;
+        for (int j = 0; j <= n; j++) curr[j] = j;
 
         for (int i = 1; i <= m; i++) {
-            prev = curr[0];
+            int prev = curr[0];
             curr[0] = i;
             for (int j = 1; j <= n; j++) {
+                cellUpdates++;
                 int temp = curr[j];
-                if (s1.charAt(i - 1) == s2.charAt(j - 1))
+                if (s1.charAt(i - 1) == s2.charAt(j - 1)) {
                     curr[j] = prev;
-                else
+                } else {
                     curr[j] = 1 + Math.min(Math.min(curr[j - 1], prev), curr[j]);
+                }
                 prev = temp;
             }
         }
-
         return curr[n];
     }
 }
