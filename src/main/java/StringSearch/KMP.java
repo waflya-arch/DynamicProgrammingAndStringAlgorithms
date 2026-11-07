@@ -3,84 +3,64 @@ package StringSearch;
 import java.util.ArrayList;
 
 public class KMP {
-    public static void constructLps(String pat, int[] lps) {
+    public static long comparisons = 0;
 
-        // len stores the length of longest prefix which
-        // is also a suffix for the previous index
+    public static int[] lps(String pat) {
+        if (pat == null || pat.isEmpty()) {
+            throw new IllegalArgumentException("Pattern cannot be empty");
+        }
+        int m = pat.length();
+        int[] lpsArr = new int[m];
         int len = 0;
-
-        // lps[0] is always 0
-        lps[0] = 0;
-
         int i = 1;
-        while (i < pat.length()) {
 
-            // If characters match, increment the size of lps
+        while (i < m) {
             if (pat.charAt(i) == pat.charAt(len)) {
                 len++;
-                lps[i] = len;
+                lpsArr[i] = len;
                 i++;
-            }
-
-            // If there is a mismatch
-            else {
+            } else {
                 if (len != 0) {
-
-                    // Update len to the previous lps value
-                    // to avoid redundant comparisons
-                    len = lps[len - 1];
-                }
-                else {
-
-                    // If no matching prefix found, set lps[i] to 0
-                    lps[i] = 0;
+                    len = lpsArr[len - 1];
+                } else {
+                    lpsArr[i] = 0;
                     i++;
                 }
             }
         }
+        return lpsArr;
     }
 
     public static ArrayList<Integer> search(String pat, String txt) {
+        if (pat == null || pat.isEmpty()) {
+            throw new IllegalArgumentException("Pattern cannot be empty");
+        }
+        ArrayList<Integer> res = new ArrayList<>();
         int n = txt.length();
         int m = pat.length();
+        comparisons = 0;
 
-        int[] lps = new int[m];
-        ArrayList<Integer> res = new ArrayList<>();
+        if (m > n) return res;
 
-        if (m == 0) throw new IllegalArgumentException();
-        else constructLps(pat, lps);
-
-        // Pointers i and j, for traversing
-        // the text and pattern
+        int[] lpsArr = lps(pat);
         int i = 0;
         int j = 0;
 
         while (i < n) {
-            // If characters match, move both pointers forward
+            comparisons++;
             if (txt.charAt(i) == pat.charAt(j)) {
                 i++;
                 j++;
-
-                // If the entire pattern is matched
-                // store the start index in result
                 if (j == m) {
                     res.add(i - j);
-
-                    // Use LPS of previous index to
-                    // skip unnecessary comparisons
-                    j = lps[j - 1];
+                    j = lpsArr[j - 1];
                 }
-            }
-
-            // If there is a mismatch
-            else {
-
-                // Use lps value of previous index
-                // to avoid redundant comparisons
-                if (j != 0)
-                    j = lps[j - 1];
-                else
+            } else {
+                if (j != 0) {
+                    j = lpsArr[j - 1];
+                } else {
                     i++;
+                }
             }
         }
         return res;
